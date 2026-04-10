@@ -1,7 +1,0 @@
-interface:
-  display_name: "EC"
-  short_description: "围绕当前项目主题快速生成代码小测"
-  default_prompt: "Use $ec to generate a small code reading or writing task for one topic in the current project."
-
-policy:
-  allow_implicit_invocation: false

@@ -1,7 +1,0 @@
-interface:
-  display_name: "TM"
-  short_description: "围绕当前主题快速生成轻量知识树和学习顺序建议"
-  default_prompt: "Use $tm to outline a compact knowledge tree and study order for one topic in the current project."
-
-policy:
-  allow_implicit_invocation: false

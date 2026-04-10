@@ -1,7 +1,0 @@
-interface:
-  display_name: "TT"
-  short_description: "围绕当前项目卡点快速进入教学模式并做小范围知识扩充"
-  default_prompt: "Use $tt to explain one blocker in the current project with a compact example and a few related concepts."
-
-policy:
-  allow_implicit_invocation: false
