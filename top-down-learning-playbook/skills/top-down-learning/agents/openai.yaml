@@ -1,0 +1,7 @@
+interface:
+  display_name: "Top-Down Learning"
+  short_description: "围绕项目阻塞点做小范围技术扩充、案例讲解与学习梳理"
+  default_prompt: "Use $top-down-learning teach or t to explain one blocker in the current project, or $top-down-learning map or m to outline a compact knowledge tree and study order."
+
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Learning Exam"
+  short_description: "围绕当前项目生成小测并对答案进行评分和补强反馈"
+  default_prompt: "Use $learning-exam quiz or q, code or c, then use $learning-exam grade or g to score the answer."
+
+policy:
+  allow_implicit_invocation: false

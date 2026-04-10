@@ -1,0 +1,7 @@
+interface:
+  display_name: "EQ"
+  short_description: "围绕当前项目主题快速生成概念小测"
+  default_prompt: "Use $eq to generate a compact concept quiz for one topic in the current project."
+
+policy:
+  allow_implicit_invocation: false

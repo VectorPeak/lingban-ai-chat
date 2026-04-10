@@ -1,0 +1,7 @@
+interface:
+  display_name: "EG"
+  short_description: "围绕当前项目小测答案快速评分并给出补强建议"
+  default_prompt: "Use $eg to score the user's recent learning-check answer and provide concise improvement feedback."
+
+policy:
+  allow_implicit_invocation: false
