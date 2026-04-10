@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIchat-API 前后端联调 API 文档</title>
+  <style>
+    :root {
+      --bg: #f6f3ee;
+      --panel: #fffdfa;
+      --ink: #1f1b17;
+      --muted: #6d6258;
+      --line: #dfd3c6;
+      --accent: #b45a33;
+      --accent-soft: #f4e7da;
+      --code-bg: #241d18;
+      --code-ink: #f7efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #fdfaf6 0%, var(--bg) 100%);
+      color: var(--ink);
+      font: 15px/1.7 "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    .wrap {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 20px;
+    }
+    .nav, .main {
+      background: rgba(255, 253, 250, 0.96);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: 0 18px 40px rgba(58, 39, 24, 0.08);
+    }
+    .nav {
+      position: sticky;
+      top: 18px;
+      align-self: start;
+      padding: 18px;
+    }
+    .nav h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+    .nav p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .nav a {
+      display: block;
+      padding: 8px 10px;
+      border-radius: 10px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .nav a:hover {
+      background: var(--accent-soft);
+    }
+    .main {
+      padding: 30px;
+    }
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    h2 {
+      margin: 28px 0 10px;
+      font-size: 28px;
+    }
+    h3 {
+      margin: 22px 0 10px;
+      font-size: 21px;
+    }
+    p, li {
+      font-size: 15px;
+    }
+    ul, ol {
+      padding-left: 22px;
+    }
+    code {
+      background: #f6ecdf;
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-family: Consolas, "Courier New", monospace;
+    }
+    pre {
+      margin: 12px 0 18px;
+      padding: 16px;
+      border-radius: 16px;
+      overflow: auto;
+      background: var(--code-bg);
+      color: var(--code-ink);
+    }
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 18px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      border-radius: 14px;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+    th {
+      background: #efe2d4;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 14px 0 20px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffdfa 0%, #f8efe3 100%);
+      border-radius: 18px;
+      padding: 15px;
+    }
+    .card strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+    .note {
+      padding: 12px 14px;
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      border-radius: 0 12px 12px 0;
+      margin: 14px 0;
+    }
+    .muted {
+      color: var(--muted);
+    }
+    @media (max-width: 980px) {
+      .wrap {
+        grid-template-columns: 1fr;
+      }
+      .nav {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <aside class="nav">
+      <h1>AIchat-API</h1>
+      <p>前后端联调 API 文档</p>
+      <a href="#base">基础信息</a>
+      <a href="#auth">鉴权约定</a>
+      <a href="#roles">角色列表</a>
+      <a href="#login">LoginService</a>
+      <a href="#chat">ChatService</a>
+      <a href="#errors">错误码</a>
+      <a href="#frontend">前端示例</a>
+      <a href="#tips">对接建议</a>
+    </aside>
+
+    <main class="main">
+      <span class="eyebrow">Frontend API Guide</span>
+      <div class="note">更新时间：2026-04-09。本文档按当前仓库代码和线上云函数实际返回整理，建议前端联调时与根目录测试页一起使用。</div>
+
+      <section id="base">
+        <h2>1. 基础信息</h2>
+        <div class="grid">
+          <div class="card">
+            <strong>LoginService</strong>
+            <div><code>https://aichat-login-itosyagchs.cn-hangzhou.fcapp.run</code></div>
+            <div class="muted">发送验证码、手机号验证码登录、签发 JWT</div>
+          </div>
+          <div class="card">
+            <strong>ChatService</strong>
+            <div><code>https://aichat-service-imefiprtzg.cn-hangzhou.fcapp.run</code></div>
+            <div class="muted">角色列表、聊天、流式聊天、历史记录、清空当前聊天</div>
+          </div>
+        </div>
+
+        <h3>1.1 当前线上联调状态</h3>
+        <ol>
+          <li><code>LoginService GET /health</code> 返回 <code>200</code>，<code>configured=true</code>。</li>
+          <li><code>ChatService GET /health</code> 返回 <code>200</code>，<code>configured=true</code>。</li>
+          <li><code>ChatService</code> 当前要求 JWT 鉴权，<code>authRequired=true</code>。</li>
+          <li><code>ChatService GET /api/chat/roles</code> 当前返回 4 个有效角色。</li>
+          <li><code>ChatService</code> 当前数据库和天气能力均已联通。</li>
+        </ol>
+      </section>
+
+      <section id="auth">
+        <h2>2. 鉴权约定</h2>
+        <p>推荐统一用请求头传 JWT：</p>
+        <pre><code>Authorization: Bearer &lt;token&gt;</code></pre>
+        <p><code>ChatService</code> 兼容在 Body 中传 <code>token</code>，但不建议作为正式接入方式。</p>
+
+        <h3>2.1 不需要 JWT 的接口</h3>
+        <ol>
+          <li><code>LoginService</code> 的全部接口</li>
+          <li><code>ChatService GET /</code></li>
+          <li><code>ChatService GET /health</code></li>
+          <li><code>ChatService GET /api/chat/roles</code></li>
+        </ol>
+
+        <h3>2.2 需要 JWT 的接口</h3>
+        <ol>
+          <li><code>GET /api/chat/history</code></li>
+          <li><code>POST /api/chat/clear</code></li>
+          <li><code>POST /api/chat/completions</code></li>
+          <li><code>POST /api/chat/stream</code></li>
+        </ol>
+      </section>
+
+      <section id="roles">
+        <h2>3. 角色列表</h2>
+        <p>前端应始终从 <code>GET /api/chat/roles</code> 获取角色，不要写死角色图片地址和开场白。</p>
+        <table>
+          <thead>
+            <tr>
+              <th>roleKey</th>
+              <th>nickname</th>
+              <th>archetype</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>chenge</code></td><td>辰哥</td><td>平易近人的技术专家</td></tr>
+            <tr><td><code>taffy_like</code></td><td>塔菲</td><td>古灵精怪的发明家少女</td></tr>
+            <tr><td><code>jiaran_like</code></td><td>嘉然</td><td>元气甜妹吃货</td></tr>
+            <tr><td><code>dongxuelian_like</code></td><td>冬雪莲</td><td>清冷系吸血鬼少女</td></tr>
+          </tbody>
+        </table>
+
+        <h3>3.1 <code>GET /api/chat/roles</code></h3>
+        <p>不需要 JWT，返回角色公开信息。</p>
+        <pre><code>{
+  "success": true,
+  "data": [
+    {
+      "roleKey": "chenge",
+      "nickname": "辰哥",
+      "archetype": "平易近人的技术专家",
+      "avatarUrl": "https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_avatar_chenge.png",
+      "backgroundUrl": "https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_bg_chenge.png",
+      "personaSummary": "一位平易近人、擅长把复杂技术问题讲明白的技术专家型老师。",
+      "openingMessage": "我是辰哥。技术问题不用急着堆术语，你把现象、报错、代码或者思路告诉我，我会陪你一步一步拆开来看，尽量讲清原理，也帮你找到可落地的解法。"
+    },
+    {
+      "roleKey": "taffy_like",
+      "nickname": "塔菲",
+      "archetype": "古灵精怪的发明家少女",
+      "avatarUrl": "https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_avatar_tafei.png",
+      "backgroundUrl": "https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_bg_tafei.png",
+      "personaSummary": "一位很有节目效果、带点嘴硬和傲气、偶尔会喵一下的古灵精怪陪伴角色。",
+      "openingMessage": "喂，你来啦？塔菲今天心情还不错，就勉强接待你一下……有话快说，别磨磨蹭蹭的，笨蛋喵。"
+    },
+    {
+      "roleKey": "jiaran_like",
+      "nickname": "嘉然",
+      "archetype": "元气甜妹吃货",
+      "avatarUrl": "https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_avatar_jiaran.png",
+      "backgroundUrl": "https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_bg_jiaran.png",
+      "personaSummary": "一位元气满满、甜甜软软、很会撒娇也很会接话的吃货系陪伴角色。",
+      "openingMessage": "这里是嘉然！别看嘉然小小的，嘉然可是超能吃、超可爱、也超会陪你聊天的哦！所以今天想和嘉然聊什么呀？"
+    },
+    {
+      "roleKey": "dongxuelian_like",
+      "nickname": "冬雪莲",
+      "archetype": "清冷系吸血鬼少女",
+      "avatarUrl": "https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_avatar_dongxuelian.png",
+      "backgroundUrl": "https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_bg_dongxuelian.png",
+      "personaSummary": "一位表面清冷文静、实际细腻又有点反差萌的吸血鬼少女型陪伴角色。",
+      "openingMessage": "这里是冬雪莲。你可以慢慢说，不必着急。塔菲……不是，冬雪莲会认真听。嗯，前提是不要突然端来番茄。"
+    }
+  ]
+}</code></pre>
+      </section>
+
+      <section id="login">
+        <h2>4. LoginService</h2>
+
+        <h3>4.1 <code>GET /</code></h3>
+        <pre><code>{
+  "service": "LoginService",
+  "message": "手机号验证码登录云函数已就绪。",
+  "tokenFormat": "JWT",
+  "endpoints": {
+    "health": "GET /health",
+    "sendCode": "POST /api/auth/send-code",
+    "login": "POST /api/auth/login"
+  }
+}</code></pre>
+
+        <h3>4.2 <code>GET /health</code></h3>
+        <pre><code>{
+  "success": true,
+  "service": "LoginService",
+  "configured": true,
+  "missingSettings": [],
+  "tokenFormat": "JWT"
+}</code></pre>
+
+        <h3>4.3 <code>POST /api/auth/send-code</code></h3>
+        <table>
+          <thead>
+            <tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>phoneNumber</code></td><td><code>string</code></td><td>是</td><td>手机号，只允许 6 到 15 位数字</td></tr>
+            <tr><td><code>countryCode</code></td><td><code>string</code></td><td>否</td><td>国家码，默认 <code>86</code></td></tr>
+            <tr><td><code>outId</code></td><td><code>string</code></td><td>否</td><td>业务侧请求 ID</td></tr>
+          </tbody>
+        </table>
+        <pre><code>{
+  "phoneNumber": "15209500318",
+  "countryCode": "86",
+  "outId": "login-20260409-0001"
+}</code></pre>
+        <pre><code>{
+  "success": true,
+  "message": "验证码发送成功。",
+  "data": {
+    "requestId": "12bcc716-4615-464d-81fd-59eb9c2e5dbf",
+    "bizId": "778608475566212268^0",
+    "outId": "login-20260409-0001",
+    "validTimeSeconds": 300,
+    "codeLength": 6
+  }
+}</code></pre>
+        <p>非法手机号示例：</p>
+        <pre><code>{
+  "success": false,
+  "message": "phoneNumber 格式不正确，必须是 6 到 15 位数字。"
+}</code></pre>
+
+        <h3>4.4 <code>POST /api/auth/login</code></h3>
+        <table>
+          <thead>
+            <tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>phoneNumber</code></td><td><code>string</code></td><td>是</td><td>手机号，只允许 6 到 15 位数字</td></tr>
+            <tr><td><code>verifyCode</code></td><td><code>string</code></td><td>是</td><td>短信验证码</td></tr>
+            <tr><td><code>countryCode</code></td><td><code>string</code></td><td>否</td><td>国家码，默认 <code>86</code></td></tr>
+            <tr><td><code>outId</code></td><td><code>string</code></td><td>否</td><td>业务侧请求 ID</td></tr>
+          </tbody>
+        </table>
+        <pre><code>{
+  "success": true,
+  "message": "登录成功。",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "tokenType": "Bearer",
+    "tokenFormat": "JWT",
+    "expiresIn": 2592000,
+    "expiresAt": "2026-05-09T01:23:45+00:00",
+    "user": {
+      "phoneNumber": "15209500318",
+      "countryCode": "86"
+    }
+  }
+}</code></pre>
+      </section>
+
+      <section id="chat">
+        <h2>5. ChatService</h2>
+
+        <h3>5.1 <code>GET /</code></h3>
+        <pre><code>{
+  "service": "ChatService",
+  "message": "AI 聊天云函数已就绪。",
+  "endpoints": {
+    "health": "GET /health",
+    "roles": "GET /api/chat/roles",
+    "chat": "POST /api/chat/completions",
+    "stream": "POST /api/chat/stream",
+    "history": "GET /api/chat/history",
+    "clear": "POST /api/chat/clear"
+  }
+}</code></pre>
+
+        <h3>5.2 <code>GET /health</code></h3>
+        <pre><code>{
+  "success": true,
+  "service": "ChatService",
+  "configured": true,
+  "missingSettings": [],
+  "missingOptionalSettings": [],
+  "authRequired": true,
+  "databaseConfigured": true,
+  "databaseReachable": true,
+  "weatherConfigured": true,
+  "model": "qwen-plus",
+  "models": {
+    "text": "qwen-plus",
+    "vision": "qwen-vl-plus-latest"
+  }
+}</code></pre>
+
+        <h3>5.3 <code>GET /api/chat/history</code></h3>
+        <table>
+          <thead>
+            <tr><th>字段</th><th>位置</th><th>必填</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>roleKey</code></td><td>query</td><td>否</td><td>角色 Key，默认 <code>chenge</code></td></tr>
+            <tr><td><code>limit</code></td><td>query</td><td>否</td><td>返回条数，默认 100，最大 200</td></tr>
+          </tbody>
+        </table>
+        <pre><code>GET /api/chat/history?roleKey=chenge&amp;limit=50</code></pre>
+        <pre><code>{
+  "success": true,
+  "data": {
+    "role": {
+      "roleKey": "chenge",
+      "nickname": "辰哥",
+      "archetype": "平易近人的技术专家",
+      "avatarUrl": "https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_avatar_chenge.png",
+      "backgroundUrl": "https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_bg_chenge.png",
+      "personaSummary": "一位平易近人、擅长把复杂技术问题讲明白的技术专家型老师。",
+      "openingMessage": "我是辰哥。技术问题不用急着堆术语，你把现象、报错、代码或者思路告诉我，我会陪你一步一步拆开来看，尽量讲清原理，也帮你找到可落地的解法。"
+    },
+    "conversationId": 12,
+    "messages": [
+      {
+        "id": 101,
+        "role": "user",
+        "content": "帮我解释一下 Python 装饰器。",
+        "hasImage": false,
+        "model": null,
+        "createdAt": "2026-04-09T01:23:45+00:00"
+      },
+      {
+        "id": 102,
+        "role": "assistant",
+        "content": "可以，先把它理解成“给函数包一层额外逻辑”。",
+        "hasImage": false,
+        "model": "qwen-plus",
+        "createdAt": "2026-04-09T01:23:46+00:00"
+      }
+    ]
+  }
+}</code></pre>
+
+        <h3>5.4 <code>POST /api/chat/clear</code></h3>
+        <table>
+          <thead>
+            <tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>roleKey</code></td><td><code>string</code></td><td>否</td><td>角色 Key，默认 <code>chenge</code></td></tr>
+          </tbody>
+        </table>
+        <pre><code>{
+  "roleKey": "chenge"
+}</code></pre>
+        <pre><code>{
+  "success": true,
+  "message": "当前聊天已清空。",
+  "data": {
+    "role": {
+      "roleKey": "chenge",
+      "nickname": "辰哥",
+      "archetype": "平易近人的技术专家",
+      "avatarUrl": "https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_avatar_chenge.png",
+      "backgroundUrl": "https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_bg_chenge.png",
+      "personaSummary": "一位平易近人、擅长把复杂技术问题讲明白的技术专家型老师。",
+      "openingMessage": "我是辰哥。技术问题不用急着堆术语，你把现象、报错、代码或者思路告诉我，我会陪你一步一步拆开来看，尽量讲清原理，也帮你找到可落地的解法。"
+    },
+    "clearedConversationCount": 1
+  }
+}</code></pre>
+
+        <h3>5.5 <code>POST /api/chat/completions</code></h3>
+        <table>
+          <thead>
+            <tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>roleKey</code></td><td><code>string</code></td><td>否</td><td>角色 Key，默认 <code>chenge</code></td></tr>
+            <tr><td><code>message</code></td><td><code>string</code></td><td>否</td><td>当前用户输入文本，优先级最高</td></tr>
+            <tr><td><code>messages</code></td><td><code>array</code></td><td>否</td><td>可选消息数组，服务端会取最后一个用户文本</td></tr>
+            <tr><td><code>model</code></td><td><code>string</code></td><td>否</td><td>指定模型</td></tr>
+            <tr><td><code>temperature</code></td><td><code>number</code></td><td>否</td><td>温度参数</td></tr>
+            <tr><td><code>topP</code></td><td><code>number</code></td><td>否</td><td>Top P</td></tr>
+            <tr><td><code>maxTokens</code></td><td><code>number</code></td><td>否</td><td>最大输出 Token 数</td></tr>
+            <tr><td><code>presencePenalty</code></td><td><code>number</code></td><td>否</td><td>presence penalty</td></tr>
+            <tr><td><code>frequencyPenalty</code></td><td><code>number</code></td><td>否</td><td>frequency penalty</td></tr>
+            <tr><td><code>weatherCity</code></td><td><code>string</code></td><td>否</td><td>显式指定天气查询城市</td></tr>
+            <tr><td><code>imageUrl</code></td><td><code>string</code></td><td>否</td><td>图片 URL，只支持单张</td></tr>
+            <tr><td><code>imageDataUrl</code></td><td><code>string</code></td><td>否</td><td>Base64 Data URL，只支持单张，优先级高于 <code>imageUrl</code></td></tr>
+            <tr><td><code>token</code></td><td><code>string</code></td><td>否</td><td>Body 中传 JWT 的兼容字段，不推荐</td></tr>
+            <tr><td><code>stream</code></td><td><code>boolean</code></td><td>否</td><td>设为 <code>true</code> 时，行为等价于流式接口</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <strong>请求规则</strong><br />
+          1. <code>message</code> 有值时优先使用。<br />
+          2. 不传 <code>weatherCity</code> 时，只有明显的天气问题才会触发天气工具。<br />
+          3. 当前只支持单张图片，图片不做持久化。<br />
+          4. <code>/api/chat/completions</code> 传 <code>stream=true</code> 时，行为等价于流式接口。
+        </div>
+
+        <pre><code>{
+  "roleKey": "chenge",
+  "message": "帮我解释一下 Python 装饰器。",
+  "model": "qwen-plus",
+  "temperature": 0.7
+}</code></pre>
+        <pre><code>{
+  "roleKey": "taffy_like",
+  "message": "杭州现在适合出门吗？",
+  "weatherCity": "杭州"
+}</code></pre>
+        <pre><code>{
+  "roleKey": "dongxuelian_like",
+  "message": "帮我看一下这张图里的内容。",
+  "imageDataUrl": "data:image/jpeg;base64,/9j/4AAQSk..."
+}</code></pre>
+
+        <pre><code>{
+  "success": true,
+  "data": {
+    "id": "chatcmpl-xxx",
+    "object": "chat.completion",
+    "model": "qwen-plus",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "可以。先把装饰器理解成“给函数再包一层逻辑”的语法糖。"
+        },
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 120,
+      "completion_tokens": 28,
+      "total_tokens": 148
+    }
+  },
+  "meta": {
+    "role": {
+      "roleKey": "chenge",
+      "nickname": "辰哥",
+      "archetype": "平易近人的技术专家",
+      "avatarUrl": "https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_avatar_chenge.png",
+      "backgroundUrl": "https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_bg_chenge.png",
+      "personaSummary": "一位平易近人、擅长把复杂技术问题讲明白的技术专家型老师。",
+      "openingMessage": "我是辰哥。技术问题不用急着堆术语，你把现象、报错、代码或者思路告诉我，我会陪你一步一步拆开来看，尽量讲清原理，也帮你找到可落地的解法。"
+    },
+    "conversationId": 12,
+    "assistantMessage": "可以。先把装饰器理解成“给函数再包一层逻辑”的语法糖。",
+    "weather": null,
+    "usedToolCall": false
+  }
+}</code></pre>
+
+        <h3>5.6 <code>POST /api/chat/stream</code></h3>
+        <p>请求参数与 <code>POST /api/chat/completions</code> 完全一致，返回 <code>text/event-stream</code>。</p>
+        <p>前端主要解析 <code>choices[0].delta.content</code>，结束帧固定为 <code>data: [DONE]</code>。</p>
+        <pre><code>data: {"id":"chatcmpl-xxx","object":"chat.completion.chunk","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":null}],"usage":null}
+
+data: {"id":"chatcmpl-xxx","object":"chat.completion.chunk","choices":[{"delta":{"content":"可以"},"index":0,"finish_reason":null}],"usage":null}
+
+data: {"id":"chatcmpl-xxx","object":"chat.completion.chunk","choices":[{"delta":{"content":"，先把它理解成语法糖。"},"index":0,"finish_reason":null}],"usage":null}
+
+data: {"id":"chatcmpl-xxx","object":"chat.completion.chunk","choices":[],"usage":{"prompt_tokens":120,"completion_tokens":28,"total_tokens":148}}
+
+data: [DONE]</code></pre>
+      </section>
+
+      <section id="errors">
+        <h2>6. 错误码和返回规范</h2>
+        <table>
+          <thead>
+            <tr><th>状态码</th><th>场景</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>400</code></td><td>参数错误</td><td>例如手机号格式不正确、缺少必要参数</td></tr>
+            <tr><td><code>401</code></td><td>未登录或登录态无效</td><td>例如缺少 JWT、JWT 无效、验证码校验失败</td></tr>
+            <tr><td><code>500</code></td><td>服务内部错误或配置缺失</td><td>例如数据库未配置、内部异常</td></tr>
+            <tr><td><code>502</code></td><td>上游服务失败</td><td>例如模型服务或天气服务调用失败</td></tr>
+            <tr><td><code>504</code></td><td>模型请求超时</td><td>例如大模型在服务端超时阈值内未返回</td></tr>
+          </tbody>
+        </table>
+
+        <p>实际错误示例：</p>
+        <pre><code>{
+  "success": false,
+  "message": "phoneNumber 格式不正确，必须是 6 到 15 位数字。"
+}</code></pre>
+        <pre><code>{
+  "success": false,
+  "message": "缺少登录凭证。"
+}</code></pre>
+        <pre><code>{
+  "success": false,
+  "message": "登录凭证无效。"
+}</code></pre>
+        <pre><code>{
+  "success": false,
+  "message": "服务缺少必要环境变量配置。",
+  "missingSettings": [
+    "LOGIN_TOKEN_SECRET"
+  ]
+}</code></pre>
+      </section>
+
+      <section id="frontend">
+        <h2>7. 前端接入示例</h2>
+
+        <h3>7.1 登录并获取 JWT</h3>
+        <pre><code>const loginRes = await fetch('https://aichat-login-itosyagchs.cn-hangzhou.fcapp.run/api/auth/login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    phoneNumber: '15209500318',
+    countryCode: '86',
+    verifyCode: '123456'
+  })
+});
+
+const loginJson = await loginRes.json();
+const token = loginJson.data.token;</code></pre>
+
+        <h3>7.2 加载角色列表</h3>
+        <pre><code>const rolesRes = await fetch('https://aichat-service-imefiprtzg.cn-hangzhou.fcapp.run/api/chat/roles');
+const rolesJson = await rolesRes.json();
+const roles = rolesJson.data;</code></pre>
+
+        <h3>7.3 普通聊天</h3>
+        <pre><code>const res = await fetch('https://aichat-service-imefiprtzg.cn-hangzhou.fcapp.run/api/chat/completions', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    roleKey: 'chenge',
+    message: '帮我解释一下 Python 装饰器。'
+  })
+});
+
+const json = await res.json();
+console.log(json.meta.assistantMessage);</code></pre>
+
+        <h3>7.4 带天气的聊天</h3>
+        <pre><code>const res = await fetch('https://aichat-service-imefiprtzg.cn-hangzhou.fcapp.run/api/chat/completions', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    roleKey: 'taffy_like',
+    message: '杭州现在适合出门吗？',
+    weatherCity: '杭州'
+  })
+});
+
+const json = await res.json();
+console.log(json.meta.weather);
+console.log(json.meta.assistantMessage);</code></pre>
+
+        <h3>7.5 流式聊天</h3>
+        <pre><code>const res = await fetch('https://aichat-service-imefiprtzg.cn-hangzhou.fcapp.run/api/chat/stream', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    roleKey: 'dongxuelian_like',
+    message: '陪我聊聊天吧。'
+  })
+});
+
+const reader = res.body.getReader();
+const decoder = new TextDecoder();
+let buffer = '';
+
+while (true) {
+  const { value, done } = await reader.read();
+  if (done) break;
+
+  buffer += decoder.decode(value, { stream: true });
+  const frames = buffer.split('\n\n');
+  buffer = frames.pop() || '';
+
+  for (const frame of frames) {
+    if (!frame.startsWith('data: ')) continue;
+    const raw = frame.slice(6);
+    if (raw === '[DONE]') continue;
+
+    const event = JSON.parse(raw);
+    const delta = event.choices?.[0]?.delta?.content || '';
+    if (delta) {
+      console.log(delta);
+    }
+  }
+}</code></pre>
+      </section>
+
+      <section id="tips">
+        <h2>8. 前端对接建议</h2>
+        <ol>
+          <li>角色相关素材全部走 <code>GET /api/chat/roles</code>，不要在前端保存静态副本。</li>
+          <li>所有受保护接口统一走 <code>Authorization: Bearer &lt;token&gt;</code>。</li>
+          <li>收到 <code>401</code> 时，前端应清除本地 JWT 并跳转登录。</li>
+          <li>需要天气时，最好显式传 <code>weatherCity</code>，不要完全依赖模型自动判断。</li>
+          <li>图片聊天只支持单图，建议上传前压缩，避免请求体过大。</li>
+          <li>对 <code>502</code> 和 <code>504</code> 做重试提示，不要直接把上游错误原样暴露给用户。</li>
+        </ol>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

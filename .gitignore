@@ -1,0 +1,23 @@
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+*.log
+
+# Android
+**/.gradle/
+**/build/
+**/captures/
+**/.externalNativeBuild/
+**/.cxx/
+AIchat-android/local.properties
+
+# Python
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+**/.venv/
+**/venv/
+
+# Environment files
+**/.env

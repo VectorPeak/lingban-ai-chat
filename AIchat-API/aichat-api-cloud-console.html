@@ -1,0 +1,986 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AIchat-API 云函数测试台</title>
+  <style>
+    :root {
+      --bg: #f5f0e8;
+      --panel: #fffaf4;
+      --line: #dbcdbd;
+      --text: #1b1713;
+      --muted: #6d655c;
+      --primary: #a24d23;
+      --secondary: #145f58;
+      --ok: #0c7b4b;
+      --warn: #8a5b00;
+      --err: #b42318;
+      --dark: #231c16;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 14px/1.6 "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(162, 77, 35, 0.08), transparent 28%),
+        linear-gradient(180deg, #eee5d9 0, var(--bg) 45%, #faf6ef 100%);
+    }
+    .wrap { max-width: 1380px; margin: 0 auto; padding: 20px 14px 32px; }
+    .hero, .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 16px 40px rgba(37, 26, 17, 0.1);
+    }
+    .hero { padding: 22px; margin-bottom: 16px; }
+    .hero h1 { margin: 10px 0 8px; font-size: clamp(30px, 5vw, 52px); line-height: 1.04; }
+    .muted { color: var(--muted); }
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(162, 77, 35, 0.08);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .grid { display: grid; grid-template-columns: 1fr 1fr .9fr; gap: 16px; }
+    .stack { display: grid; gap: 16px; }
+    .card { padding: 18px; }
+    .card h2 { margin: 0 0 12px; font-size: 18px; }
+    .field { margin-bottom: 10px; }
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    input, textarea, select {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fffdf9;
+      color: var(--text);
+      font: inherit;
+      outline: none;
+    }
+    textarea { min-height: 88px; resize: vertical; }
+    input[type="file"] {
+      padding: 10px;
+      background: #fffdf9;
+    }
+    .message { min-height: 150px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    button {
+      padding: 10px 14px;
+      border: 0;
+      border-radius: 999px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .55; cursor: wait; }
+    .primary { background: var(--primary); color: #fff; }
+    .secondary { background: var(--secondary); color: #fff; }
+    .flat { background: #ece2d6; color: var(--text); }
+    .ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+    .status {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .ok { background: rgba(12, 123, 75, 0.08); color: var(--ok); }
+    .warn { background: rgba(138, 91, 0, 0.1); color: var(--warn); }
+    .err { background: rgba(180, 35, 24, 0.08); color: var(--err); }
+    .mono, pre {
+      margin: 0;
+      padding: 14px;
+      border-radius: 14px;
+      background: var(--dark);
+      color: #f7efe6;
+      font: 12px/1.55 Consolas, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow: auto;
+    }
+    .mono { min-height: 90px; }
+    .token { min-height: 110px; }
+    pre { min-height: 320px; }
+    .hint {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .preview {
+      margin-top: 10px;
+      padding: 12px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      background: #fffdf9;
+    }
+    .preview img {
+      display: block;
+      width: 100%;
+      max-height: 220px;
+      object-fit: contain;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #f8f2ea;
+    }
+    .preview-meta {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      word-break: break-word;
+    }
+    @media (max-width: 1120px) { .grid { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .row2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">Cloud Function Console</div>
+      <h1>AIchat-API 云函数测试台</h1>
+      <div class="muted">
+        默认地址：
+        <br>LoginService: https://aichat-login-itosyagchs.cn-hangzhou.fcapp.run
+        <br>ChatService: https://aichat-service-imefiprtzg.cn-hangzhou.fcapp.run
+        <br><br>“一键安全烟雾测试”不会发送真实短信，也不会发起需要真实 JWT 的聊天，只做健康检查、角色读取、非法参数校验和未登录鉴权校验。
+      </div>
+      <div class="actions">
+        <button class="primary" id="safeSmokeBtn">一键安全烟雾测试</button>
+        <button class="ghost" id="clearBtn">清空页面输出</button>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="stack">
+        <div class="card">
+          <h2>LoginService</h2>
+          <div class="field">
+            <label>登录服务地址</label>
+            <input id="loginBaseUrl" value="https://aichat-login-itosyagchs.cn-hangzhou.fcapp.run">
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>国家区号</label>
+              <input id="countryCode" value="86">
+            </div>
+            <div class="field">
+              <label>outId（可选）</label>
+              <input id="outId" placeholder="例如 login-test-001">
+            </div>
+          </div>
+          <div class="field">
+            <label>手机号</label>
+            <input id="phoneNumber" placeholder="请输入你自己的手机号">
+          </div>
+          <div class="field">
+            <label>验证码</label>
+            <input id="verifyCode" placeholder="收到短信后再填写">
+          </div>
+          <div class="actions">
+            <button class="flat" id="loginHealthBtn">健康检查</button>
+            <button class="primary" id="sendCodeBtn">发送验证码</button>
+            <button class="primary" id="loginBtn">登录并保存 JWT</button>
+            <button class="ghost" id="fillOutIdBtn">生成 outId</button>
+          </div>
+          <div id="loginStatus" class="status warn">等待操作。</div>
+        </div>
+
+        <div class="card">
+          <h2>ChatService</h2>
+          <div class="field">
+            <label>聊天服务地址</label>
+            <input id="chatBaseUrl" value="https://aichat-service-imefiprtzg.cn-hangzhou.fcapp.run">
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>角色</label>
+              <select id="roleKey">
+                <option value="">正在加载角色...</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>历史条数</label>
+              <input id="historyLimit" type="number" min="1" max="200" value="50">
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>模型</label>
+              <input id="model" value="qwen-plus">
+            </div>
+            <div class="field">
+              <label>temperature</label>
+              <input id="temperature" type="number" step="0.1" value="0.7">
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>天气城市（可选）</label>
+              <input id="weatherCity" placeholder="例如 杭州">
+            </div>
+            <div class="field">
+              <label>图片 URL（可选）</label>
+              <input id="imageUrl" placeholder="当前仅支持单张图片 URL">
+              <div class="hint">如果同时选择本地图片，测试页会优先发送本地图片的 imageDataUrl。</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>本地图片（可选）</label>
+            <input id="imageFile" type="file" accept="image/*">
+            <div class="actions">
+              <button class="ghost" id="clearImageBtn" type="button">清除本地图片</button>
+            </div>
+            <div class="preview">
+              <img id="imagePreview" alt="本地图片预览" hidden>
+              <div id="imagePreviewMeta" class="preview-meta">当前未选择本地图片。</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>附加 System Prompt（可选）</label>
+            <textarea id="systemPrompt"></textarea>
+          </div>
+          <div class="field">
+            <label>用户消息</label>
+            <textarea id="message" class="message" placeholder="例如：请告诉我杭州天气，并用当前角色的语气回答。"></textarea>
+          </div>
+          <div class="actions">
+            <button class="flat" id="chatRootBtn">根路径</button>
+            <button class="flat" id="chatHealthBtn">健康检查</button>
+            <button class="flat" id="rolesBtn">刷新角色</button>
+            <button class="flat" id="historyBtn">读取历史</button>
+            <button class="ghost" id="clearChatBtn">清空聊天</button>
+            <button class="secondary" id="chatBtn">普通聊天</button>
+            <button class="secondary" id="streamBtn">流式聊天</button>
+          </div>
+          <div id="chatStatus" class="status warn">等待操作。</div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card">
+          <h2>共享 JWT</h2>
+          <div id="tokenBox" class="mono token">当前还没有 Token。</div>
+          <div class="actions">
+            <button class="ghost" id="copyTokenBtn">复制 Token</button>
+            <button class="ghost" id="clearTokenBtn">清空 Token</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>响应结果</h2>
+          <div id="resultBox" class="mono">No response yet.</div>
+        </div>
+        <div class="card">
+          <h2>流式输出</h2>
+          <div id="streamBox" class="mono">No stream yet.</div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card">
+          <h2>请求日志</h2>
+          <pre id="logBox">Ready.</pre>
+        </div>
+        <div class="card">
+          <h2>运行摘要</h2>
+          <div id="runtimeBox" class="mono">页面已加载，等待测试。</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEYS = {
+      loginBaseUrl: "aichat.loginBaseUrl",
+      chatBaseUrl: "aichat.chatBaseUrl",
+      countryCode: "aichat.countryCode",
+      outId: "aichat.outId",
+      phoneNumber: "aichat.phoneNumber",
+      sharedToken: "aichat.sharedToken",
+      roleKey: "aichat.roleKey",
+      historyLimit: "aichat.historyLimit",
+      model: "aichat.model",
+      temperature: "aichat.temperature",
+      weatherCity: "aichat.weatherCity",
+      imageUrl: "aichat.imageUrl",
+      systemPrompt: "aichat.systemPrompt",
+      message: "aichat.message"
+    };
+
+    const E = {
+      loginBaseUrl,
+      chatBaseUrl,
+      countryCode,
+      outId,
+      phoneNumber,
+      verifyCode,
+      loginHealthBtn,
+      sendCodeBtn,
+      loginBtn,
+      fillOutIdBtn,
+      loginStatus,
+      chatRootBtn,
+      chatHealthBtn,
+      rolesBtn,
+      historyBtn,
+      clearChatBtn,
+      chatBtn,
+      streamBtn,
+      chatStatus,
+      roleKey,
+      historyLimit,
+      model,
+      temperature,
+      weatherCity,
+      imageUrl,
+      imageFile,
+      clearImageBtn,
+      imagePreview,
+      imagePreviewMeta,
+      systemPrompt,
+      message,
+      tokenBox,
+      copyTokenBtn,
+      clearTokenBtn,
+      safeSmokeBtn,
+      clearBtn,
+      resultBox,
+      streamBox,
+      logBox,
+      runtimeBox
+    };
+
+    let selectedImageDataUrl = "";
+
+    const trimBase = (value) => (value || "").trim().replace(/\/+$/, "");
+    const log = (title, payload) => {
+      const now = new Date().toLocaleString();
+      const body = typeof payload === "string" ? payload : JSON.stringify(payload, null, 2);
+      E.logBox.textContent = `[${now}] ${title}\n${body}\n\n${E.logBox.textContent}`;
+    };
+    const setStatus = (el, cls, text) => {
+      el.className = `status ${cls}`;
+      el.textContent = text;
+    };
+    const setRuntime = (text) => {
+      E.runtimeBox.textContent = text;
+    };
+    const formatBytes = (bytes) => {
+      if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
+      const units = ["B", "KB", "MB", "GB"];
+      let value = bytes;
+      let unitIndex = 0;
+      while (value >= 1024 && unitIndex < units.length - 1) {
+        value /= 1024;
+        unitIndex += 1;
+      }
+      return `${value.toFixed(value >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+    };
+    /*
+    const renderImagePreview = (dataUrl, metaText = "当前未选择本地图片。") => {
+      if (dataUrl) {
+        E.imagePreview.src = dataUrl;
+        E.imagePreview.hidden = false;
+      } else {
+        E.imagePreview.removeAttribute("src");
+        E.imagePreview.hidden = true;
+      }
+      E.imagePreviewMeta.textContent = metaText;
+    };
+    const clearLocalImage = (notify = false) => {
+      selectedImageDataUrl = "";
+      E.imageFile.value = "";
+      renderImagePreview("", "当前未选择本地图片。");
+      if (notify) setRuntime("本地图片已清除。");
+    };
+    */
+    const renderImagePreview = (dataUrl, metaText = "No local image selected.") => {
+      if (dataUrl) {
+        E.imagePreview.src = dataUrl;
+        E.imagePreview.hidden = false;
+      } else {
+        E.imagePreview.removeAttribute("src");
+        E.imagePreview.hidden = true;
+      }
+      E.imagePreviewMeta.textContent = metaText;
+    };
+    const clearLocalImage = (notify = false) => {
+      selectedImageDataUrl = "";
+      E.imageFile.value = "";
+      renderImagePreview("", "No local image selected.");
+      if (notify) setRuntime("Local image cleared.");
+    };
+    const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ""));
+      reader.onerror = () => reject(new Error("图片读取失败"));
+      reader.readAsDataURL(file);
+    });
+
+    const saveFields = () => {
+      localStorage.setItem(STORAGE_KEYS.loginBaseUrl, trimBase(E.loginBaseUrl.value));
+      localStorage.setItem(STORAGE_KEYS.chatBaseUrl, trimBase(E.chatBaseUrl.value));
+      localStorage.setItem(STORAGE_KEYS.countryCode, E.countryCode.value.trim());
+      localStorage.setItem(STORAGE_KEYS.outId, E.outId.value.trim());
+      localStorage.setItem(STORAGE_KEYS.phoneNumber, E.phoneNumber.value.trim());
+      localStorage.setItem(STORAGE_KEYS.roleKey, E.roleKey.value.trim());
+      localStorage.setItem(STORAGE_KEYS.historyLimit, E.historyLimit.value.trim());
+      localStorage.setItem(STORAGE_KEYS.model, E.model.value.trim());
+      localStorage.setItem(STORAGE_KEYS.temperature, E.temperature.value.trim());
+      localStorage.setItem(STORAGE_KEYS.weatherCity, E.weatherCity.value.trim());
+      localStorage.setItem(STORAGE_KEYS.imageUrl, E.imageUrl.value.trim());
+      localStorage.setItem(STORAGE_KEYS.systemPrompt, E.systemPrompt.value);
+      localStorage.setItem(STORAGE_KEYS.message, E.message.value);
+    };
+
+    const loadFields = () => {
+      [
+        [STORAGE_KEYS.loginBaseUrl, E.loginBaseUrl],
+        [STORAGE_KEYS.chatBaseUrl, E.chatBaseUrl],
+        [STORAGE_KEYS.countryCode, E.countryCode],
+        [STORAGE_KEYS.outId, E.outId],
+        [STORAGE_KEYS.phoneNumber, E.phoneNumber],
+        [STORAGE_KEYS.historyLimit, E.historyLimit],
+        [STORAGE_KEYS.model, E.model],
+        [STORAGE_KEYS.temperature, E.temperature],
+        [STORAGE_KEYS.weatherCity, E.weatherCity],
+        [STORAGE_KEYS.imageUrl, E.imageUrl],
+        [STORAGE_KEYS.systemPrompt, E.systemPrompt],
+        [STORAGE_KEYS.message, E.message]
+      ].forEach(([key, element]) => {
+        const value = localStorage.getItem(key);
+        if (value !== null) element.value = value;
+      });
+
+      const token = getToken();
+      if (token) setToken(token);
+    };
+
+    const getToken = () => (localStorage.getItem(STORAGE_KEYS.sharedToken) || "").trim();
+
+    const setToken = (token, user) => {
+      const normalized = (token || "").trim();
+      if (!normalized) {
+        localStorage.removeItem(STORAGE_KEYS.sharedToken);
+        E.tokenBox.textContent = "当前还没有 Token。";
+        return;
+      }
+      localStorage.setItem(STORAGE_KEYS.sharedToken, normalized);
+      const userInfo = user ? `用户: +${user.countryCode} ${user.phoneNumber}\n` : "";
+      E.tokenBox.textContent = `${userInfo}Bearer ${normalized}`;
+    };
+
+    const currentRoleKey = () => {
+      const selected = E.roleKey.value.trim();
+      if (selected) return selected;
+      const firstOption = E.roleKey.options && E.roleKey.options[0] ? E.roleKey.options[0].value.trim() : "";
+      return firstOption || localStorage.getItem(STORAGE_KEYS.roleKey) || "chenge";
+    };
+
+    const authHeaders = (useAuth) => {
+      if (!useAuth || !getToken()) return {};
+      return { Authorization: `Bearer ${getToken()}` };
+    };
+
+    const requestJson = async (base, path, method = "GET", payload, useAuth = true) => {
+      saveFields();
+      const url = `${trimBase(base)}${path}`;
+      const options = { method, headers: authHeaders(useAuth) };
+      if (payload !== undefined) {
+        options.headers["Content-Type"] = "application/json";
+        options.body = JSON.stringify(payload);
+      }
+      log("Request", { url, method, payload, useAuth });
+      const res = await fetch(url, options);
+      const raw = await res.text();
+      let data;
+      try {
+        data = raw ? JSON.parse(raw) : {};
+      } catch {
+        data = { raw };
+      }
+      log("Response", { status: res.status, data });
+      return { res, raw, data };
+    };
+
+    const buildLoginPayload = (withCode) => {
+      const payload = {
+        phoneNumber: E.phoneNumber.value.trim(),
+        countryCode: E.countryCode.value.trim() || "86"
+      };
+      if (E.outId.value.trim()) payload.outId = E.outId.value.trim();
+      if (withCode) payload.verifyCode = E.verifyCode.value.trim();
+      return payload;
+    };
+
+    const buildChatPayload = (stream) => {
+      const hasImage = Boolean(selectedImageDataUrl || E.imageUrl.value.trim());
+      const requestedModel = E.model.value.trim();
+      const payload = {
+        roleKey: currentRoleKey(),
+        temperature: Number(E.temperature.value || "0.7"),
+        stream
+      };
+      if (hasImage) {
+        payload.model = requestedModel && /vl|vision/i.test(requestedModel)
+          ? requestedModel
+          : "qwen-vl-plus-latest";
+      } else if (requestedModel) {
+        payload.model = requestedModel;
+      }
+      if (E.message.value.trim()) payload.message = E.message.value.trim();
+      if (E.systemPrompt.value.trim()) payload.systemPrompt = E.systemPrompt.value.trim();
+      if (E.weatherCity.value.trim()) payload.weatherCity = E.weatherCity.value.trim();
+      if (selectedImageDataUrl) {
+        payload.imageDataUrl = selectedImageDataUrl;
+      } else if (E.imageUrl.value.trim()) {
+        payload.imageUrl = E.imageUrl.value.trim();
+      }
+      return payload;
+    };
+
+    const setBusy = (flag) => {
+      [
+        E.loginHealthBtn,
+        E.sendCodeBtn,
+        E.loginBtn,
+        E.chatRootBtn,
+        E.chatHealthBtn,
+        E.rolesBtn,
+        E.historyBtn,
+        E.clearChatBtn,
+        E.chatBtn,
+        E.streamBtn,
+        E.safeSmokeBtn,
+        E.clearImageBtn
+      ].forEach((button) => { button.disabled = flag; });
+      E.imageFile.disabled = flag;
+    };
+
+    const clearPanels = () => {
+      E.resultBox.textContent = "No response yet.";
+      E.streamBox.textContent = "No stream yet.";
+      E.logBox.textContent = "Ready.";
+      setRuntime("页面已清空，等待测试。");
+      setStatus(E.loginStatus, "warn", "等待操作。");
+      setStatus(E.chatStatus, "warn", "等待操作。");
+    };
+
+    async function loadRoles() {
+      const previousRole = localStorage.getItem(STORAGE_KEYS.roleKey) || E.roleKey.value.trim();
+      const result = await requestJson(E.chatBaseUrl.value, "/api/chat/roles", "GET", undefined, false);
+      E.resultBox.textContent = JSON.stringify(result.data, null, 2);
+
+      if (!result.res.ok || !result.data.success) {
+        setStatus(E.chatStatus, "err", result.data.message || `读取角色失败，HTTP ${result.res.status}`);
+        return null;
+      }
+
+      const roles = Array.isArray(result.data.data) ? result.data.data : [];
+      E.roleKey.innerHTML = "";
+
+      roles.forEach((role) => {
+        const option = document.createElement("option");
+        const key = role.roleKey || role.role_key || "";
+        option.value = key;
+        option.textContent = `${role.nickname || key} / ${key}`;
+        E.roleKey.appendChild(option);
+      });
+
+      const nextRole = roles.some((role) => (role.roleKey || role.role_key) === previousRole)
+        ? previousRole
+        : (roles[0]?.roleKey || roles[0]?.role_key || "");
+
+      if (nextRole) E.roleKey.value = nextRole;
+      saveFields();
+      setStatus(E.chatStatus, "ok", `角色读取成功，共 ${roles.length} 个角色。`);
+      return roles;
+    }
+
+    async function checkLoginHealth() {
+      setBusy(true);
+      setStatus(E.loginStatus, "warn", "正在检查 LoginService 健康状态...");
+      try {
+        const result = await requestJson(E.loginBaseUrl.value, "/health", "GET", undefined, false);
+        E.resultBox.textContent = JSON.stringify(result.data, null, 2);
+        setStatus(
+          E.loginStatus,
+          result.res.ok ? "ok" : "err",
+          result.res.ok
+            ? `LoginService 健康检查成功。\nconfigured=${result.data.configured}`
+            : `LoginService 健康检查失败，HTTP ${result.res.status}`
+        );
+      } catch (error) {
+        setStatus(E.loginStatus, "err", `LoginService 健康检查异常: ${error.message}`);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function sendCodeRequest() {
+      setBusy(true);
+      setStatus(E.loginStatus, "warn", "正在发送验证码...");
+      try {
+        const result = await requestJson(E.loginBaseUrl.value, "/api/auth/send-code", "POST", buildLoginPayload(false), false);
+        E.resultBox.textContent = JSON.stringify(result.data, null, 2);
+        setStatus(
+          E.loginStatus,
+          result.res.ok && result.data.success ? "ok" : "err",
+          result.res.ok && result.data.success
+            ? "验证码发送成功。"
+            : (result.data.message || `发送失败，HTTP ${result.res.status}`)
+        );
+      } catch (error) {
+        setStatus(E.loginStatus, "err", `发送验证码异常: ${error.message}`);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function loginRequest() {
+      setBusy(true);
+      setStatus(E.loginStatus, "warn", "正在登录...");
+      try {
+        const result = await requestJson(E.loginBaseUrl.value, "/api/auth/login", "POST", buildLoginPayload(true), false);
+        E.resultBox.textContent = JSON.stringify(result.data, null, 2);
+        if (result.res.ok && result.data.success) {
+          const data = result.data.data || {};
+          setToken(data.token, data.user);
+          setRuntime("JWT 已保存并同步到聊天区域。");
+          setStatus(E.loginStatus, "ok", "登录成功。");
+        } else {
+          setStatus(E.loginStatus, "err", result.data.message || `登录失败，HTTP ${result.res.status}`);
+        }
+      } catch (error) {
+        setStatus(E.loginStatus, "err", `登录异常: ${error.message}`);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function checkChatRoot() {
+      setBusy(true);
+      setStatus(E.chatStatus, "warn", "正在检查 ChatService 根路径...");
+      try {
+        const result = await requestJson(E.chatBaseUrl.value, "/", "GET", undefined, false);
+        E.resultBox.textContent = result.res.ok ? JSON.stringify(result.data, null, 2) : (result.raw || JSON.stringify(result.data, null, 2));
+        setStatus(
+          E.chatStatus,
+          result.res.ok ? "ok" : "err",
+          result.res.ok ? "ChatService 根路径返回正常。" : `ChatService 根路径失败，HTTP ${result.res.status}`
+        );
+      } catch (error) {
+        setStatus(E.chatStatus, "err", `ChatService 根路径异常: ${error.message}`);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function checkChatHealth() {
+      setBusy(true);
+      setStatus(E.chatStatus, "warn", "正在检查 ChatService 健康状态...");
+      try {
+        const result = await requestJson(E.chatBaseUrl.value, "/health", "GET", undefined, false);
+        E.resultBox.textContent = JSON.stringify(result.data, null, 2);
+        setStatus(
+          E.chatStatus,
+          result.res.ok ? "ok" : "err",
+          result.res.ok
+            ? `ChatService 健康检查成功。\nconfigured=${result.data.configured}`
+            : `ChatService 健康检查失败，HTTP ${result.res.status}`
+        );
+      } catch (error) {
+        setStatus(E.chatStatus, "err", `ChatService 健康检查异常: ${error.message}`);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function historyRequest() {
+      setBusy(true);
+      setStatus(E.chatStatus, "warn", "正在读取聊天历史...");
+      try {
+        const path = `/api/chat/history?roleKey=${encodeURIComponent(currentRoleKey())}&limit=${encodeURIComponent(E.historyLimit.value.trim() || "50")}`;
+        const result = await requestJson(E.chatBaseUrl.value, path, "GET", undefined, true);
+        E.resultBox.textContent = JSON.stringify(result.data, null, 2);
+        setStatus(
+          E.chatStatus,
+          result.res.ok && result.data.success ? "ok" : "err",
+          result.res.ok && result.data.success
+            ? `历史读取成功，共 ${(result.data.data?.messages || []).length} 条消息。`
+            : (result.data.message || `读取历史失败，HTTP ${result.res.status}`)
+        );
+      } catch (error) {
+        setStatus(E.chatStatus, "err", `读取历史异常: ${error.message}`);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function clearChatRequest() {
+      setBusy(true);
+      setStatus(E.chatStatus, "warn", "正在清空当前聊天...");
+      try {
+        const result = await requestJson(E.chatBaseUrl.value, "/api/chat/clear", "POST", { roleKey: currentRoleKey() }, true);
+        E.resultBox.textContent = JSON.stringify(result.data, null, 2);
+        setStatus(
+          E.chatStatus,
+          result.res.ok && result.data.success ? "ok" : "err",
+          result.res.ok && result.data.success
+            ? "当前聊天已清空。"
+            : (result.data.message || `清空失败，HTTP ${result.res.status}`)
+        );
+      } catch (error) {
+        setStatus(E.chatStatus, "err", `清空聊天异常: ${error.message}`);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function chatRequest() {
+      setBusy(true);
+      setStatus(E.chatStatus, "warn", "正在请求普通聊天...");
+      E.streamBox.textContent = "No stream yet.";
+      try {
+        const result = await requestJson(E.chatBaseUrl.value, "/api/chat/completions", "POST", buildChatPayload(false), true);
+        E.resultBox.textContent = JSON.stringify(result.data, null, 2);
+        setStatus(
+          E.chatStatus,
+          result.res.ok && result.data.success ? "ok" : "err",
+          result.res.ok && result.data.success
+            ? "普通聊天请求成功。"
+            : (result.data.message || `普通聊天失败，HTTP ${result.res.status}`)
+        );
+      } catch (error) {
+        setStatus(E.chatStatus, "err", `普通聊天异常: ${error.message}`);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function streamRequest() {
+      setBusy(true);
+      setStatus(E.chatStatus, "warn", "正在请求流式聊天...");
+      E.streamBox.textContent = "";
+      E.resultBox.textContent = "Waiting for stream summary...";
+      try {
+        saveFields();
+        const url = `${trimBase(E.chatBaseUrl.value)}/api/chat/stream`;
+        const payload = buildChatPayload(true);
+        log("Stream Request", { url, payload });
+
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { ...authHeaders(true), "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.body) {
+          const raw = await res.text();
+          E.streamBox.textContent = raw || "No stream body.";
+          setStatus(E.chatStatus, "err", `流式聊天失败，HTTP ${res.status}`);
+          return;
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let raw = "";
+        let assembled = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          raw += decoder.decode(value, { stream: true });
+          E.streamBox.textContent = raw;
+        }
+
+        log("Stream Response", { status: res.status, raw });
+
+        raw.split(/\r?\n/).forEach((line) => {
+          const text = line.trim();
+          if (!text.startsWith("data:")) return;
+          const body = text.slice(5).trim();
+          if (!body || body === "[DONE]") return;
+          try {
+            const event = JSON.parse(body);
+            if (event?.choices?.[0]?.delta?.content) assembled += event.choices[0].delta.content;
+            if (event?.error?.message) assembled += `\n[stream error] ${event.error.message}`;
+          } catch {
+            // ignore malformed line
+          }
+        });
+
+        E.resultBox.textContent = assembled || "流结束了，但没有解析到增量文本，请查看原始流内容。";
+        setStatus(E.chatStatus, res.ok ? "ok" : "err", res.ok ? "流式聊天请求成功。" : `流式聊天失败，HTTP ${res.status}`);
+      } catch (error) {
+        setStatus(E.chatStatus, "err", `流式聊天异常: ${error.message}`);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function smokeStep(name, action, judge) {
+      const result = await action();
+      return {
+        step: name,
+        status: result.res.status,
+        ok: judge(result),
+        data: result.data
+      };
+    }
+
+    async function safeSmoke() {
+      setBusy(true);
+      clearPanels();
+      setRuntime("正在执行安全烟雾测试...");
+      const steps = [];
+      try {
+        steps.push(await smokeStep("LoginService /health", () => requestJson(E.loginBaseUrl.value, "/health", "GET", undefined, false), (x) => x.res.ok));
+        steps.push(await smokeStep("LoginService 非法手机号校验", () => requestJson(E.loginBaseUrl.value, "/api/auth/send-code", "POST", { phoneNumber: "123", countryCode: "86" }, false), (x) => x.res.status === 400));
+        steps.push(await smokeStep("ChatService /", () => requestJson(E.chatBaseUrl.value, "/", "GET", undefined, false), (x) => x.res.ok));
+        steps.push(await smokeStep("ChatService /health", () => requestJson(E.chatBaseUrl.value, "/health", "GET", undefined, false), (x) => x.res.ok));
+        const rolesStep = await smokeStep("ChatService /api/chat/roles", () => requestJson(E.chatBaseUrl.value, "/api/chat/roles", "GET", undefined, false), (x) => x.res.ok);
+        steps.push(rolesStep);
+        const roleKey = rolesStep.data?.data?.[0]?.roleKey || currentRoleKey();
+        steps.push(await smokeStep(
+          "ChatService 未登录历史校验",
+          () => requestJson(E.chatBaseUrl.value, `/api/chat/history?roleKey=${encodeURIComponent(roleKey)}&limit=10`, "GET", undefined, false),
+          (x) => x.res.status === 401
+        ));
+
+        E.resultBox.textContent = JSON.stringify(steps, null, 2);
+        const failCount = steps.filter((item) => !item.ok).length;
+        setRuntime(failCount === 0 ? "安全烟雾测试完成，当前测试项全部通过。" : `安全烟雾测试完成，但有 ${failCount} 项未通过。`);
+      } catch (error) {
+        setRuntime(`安全烟雾测试中断: ${error.message}`);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function copyTokenRequest() {
+      if (!getToken()) {
+        setRuntime("当前没有可复制的 Token。");
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(getToken());
+        setRuntime("Token 已复制到剪贴板。");
+      } catch (error) {
+        setRuntime(`复制失败: ${error.message}`);
+      }
+    }
+
+    function clearTokenRequest() {
+      setToken("");
+      setRuntime("Token 已清空。");
+    }
+
+    function fillOutId() {
+      E.outId.value = `login-${Date.now()}`;
+      saveFields();
+      setRuntime("已生成测试 outId。");
+    }
+
+    /*
+    async function handleImageFileChange(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) {
+        clearLocalImage();
+        return;
+      }
+
+      try {
+        selectedImageDataUrl = await readFileAsDataUrl(file);
+        renderImagePreview(
+          selectedImageDataUrl,
+          `已选择本地图片：${file.name} · ${file.type || "unknown"} · ${formatBytes(file.size)}`
+        );
+        setRuntime("本地图片已载入，聊天请求将优先发送 imageDataUrl。");
+      } catch (error) {
+        clearLocalImage();
+        setRuntime(`本地图片读取失败: ${error.message}`);
+      }
+    }
+
+    */
+    async function handleImageFileChange(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) {
+        clearLocalImage();
+        return;
+      }
+
+      try {
+        selectedImageDataUrl = await readFileAsDataUrl(file);
+        renderImagePreview(
+          selectedImageDataUrl,
+          `Local image selected: ${file.name} | ${file.type || "unknown"} | ${formatBytes(file.size)}`
+        );
+        setRuntime("Local image loaded. Chat requests will use imageDataUrl first.");
+      } catch (error) {
+        clearLocalImage();
+        setRuntime(`Local image read failed: ${error.message}`);
+      }
+    }
+
+    [
+      E.loginBaseUrl,
+      E.chatBaseUrl,
+      E.countryCode,
+      E.outId,
+      E.phoneNumber,
+      E.roleKey,
+      E.historyLimit,
+      E.model,
+      E.temperature,
+      E.weatherCity,
+      E.imageUrl,
+      E.systemPrompt,
+      E.message
+    ].forEach((element) => {
+      element.addEventListener("change", saveFields);
+      element.addEventListener("blur", saveFields);
+    });
+
+    E.loginHealthBtn.onclick = checkLoginHealth;
+    E.sendCodeBtn.onclick = sendCodeRequest;
+    E.loginBtn.onclick = loginRequest;
+    E.fillOutIdBtn.onclick = fillOutId;
+    E.chatRootBtn.onclick = checkChatRoot;
+    E.chatHealthBtn.onclick = checkChatHealth;
+    E.rolesBtn.onclick = () => loadRoles().catch((error) => setRuntime(`加载角色失败: ${error.message}`));
+    E.historyBtn.onclick = historyRequest;
+    E.clearChatBtn.onclick = clearChatRequest;
+    E.chatBtn.onclick = chatRequest;
+    E.streamBtn.onclick = streamRequest;
+    E.copyTokenBtn.onclick = copyTokenRequest;
+    E.clearTokenBtn.onclick = clearTokenRequest;
+    E.safeSmokeBtn.onclick = safeSmoke;
+    E.clearBtn.onclick = clearPanels;
+    E.clearImageBtn.onclick = () => clearLocalImage(true);
+    E.imageFile.addEventListener("change", handleImageFileChange);
+
+    loadFields();
+    /*
+    renderImagePreview("", "当前未选择本地图片。");
+    loadRoles().catch((error) => setRuntime(`初始加载角色失败: ${error.message}`));
+    */
+    renderImagePreview("", "No local image selected.");
+    loadRoles().catch((error) => setRuntime(`Initial role load failed: ${error.message}`));
+    log("Info", "Cloud console loaded.");
+  </script>
+</body>
+</html>

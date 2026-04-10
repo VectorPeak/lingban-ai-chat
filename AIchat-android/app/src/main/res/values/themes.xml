@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.AIchat_app_projects.Splash" parent="Theme.SplashScreen.IconBackground">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon_foreground</item>
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/splash_icon_background</item>
+        <item name="windowSplashScreenAnimationDuration">250</item>
+        <item name="postSplashScreenTheme">@style/Theme.AIchat_app_projects</item>
+    </style>
+
+    <style name="Theme.AIchat_app_projects" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>
