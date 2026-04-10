@@ -6,21 +6,7 @@
 
 当前可直接下载的已签名 Android 安装包：
 
-- 仓库内文件入口：
-  [lingban-ai-chat-v1.0-release-signed.apk](./lingban-ai-chat-v1.0-release-signed.apk)
-- 直接下载地址：
-  [Download APK](https://github.com/VectorPeak/lingban-ai-chat/raw/main/lingban-ai-chat-v1.0-release-signed.apk)
-
-下载方式：
-
-1. 直接点击上面的 `Download APK`
-2. 或先点击仓库内 APK 文件链接，再在 GitHub 文件页点击 `Download raw file`
-
-安装说明：
-
-1. 将 APK 下载到 Android 手机
-2. 允许安装未知来源应用
-3. 打开 APK 完成安装
+- [Download APK](https://github.com/VectorPeak/lingban-ai-chat/raw/main/lingban-ai-chat-v1.0-release-signed.apk)
 
 ## 仓库结构
 
