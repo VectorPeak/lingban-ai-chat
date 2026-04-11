@@ -82,6 +82,32 @@ Android 客户端，基于：
 3. 在线 API 文档：
    [AI Chat API Wiki](https://xunmengwinter.github.io/ai-chat-api-wiki/)
 
+## 腾讯 COS 资源地址
+
+当前项目使用的图片资源基于腾讯 COS：
+
+- 资源根目录：
+  [AIchat_image](https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/)
+
+角色头像与背景图地址：
+
+- 辰哥头像：
+  [chat_avatar_chenge.png](https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_avatar_chenge.png)
+- 辰哥背景：
+  [chat_bg_chenge.png](https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_bg_chenge.png)
+- 塔菲头像：
+  [chat_avatar_tafei.png](https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_avatar_tafei.png)
+- 塔菲背景：
+  [chat_bg_tafei.png](https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_bg_tafei.png)
+- 嘉然头像：
+  [chat_avatar_jiaran.png](https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_avatar_jiaran.png)
+- 嘉然背景：
+  [chat_bg_jiaran.png](https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_bg_jiaran.png)
+- 冬雪莲头像：
+  [chat_avatar_dongxuelian.png](https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_avatar_dongxuelian.png)
+- 冬雪莲背景：
+  [chat_bg_dongxuelian.png](https://vectorpeak-1318670795.cos.ap-guangzhou.myqcloud.com/AIchat_app/AIchat_image/chat_bg_dongxuelian.png)
+
 ## 本地运行
 
 ### Android
