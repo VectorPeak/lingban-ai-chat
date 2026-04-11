@@ -1,6 +1,6 @@
 # AIchat-API 前后端联调 API 文档
 
-更新时间：2026-04-09
+更新时间：2026-04-11
 
 本文档面向前端联调，内容以当前仓库代码和线上云函数实际返回为准。
 
@@ -15,13 +15,27 @@
 
 ### 1.2 当前线上联调状态
 
-基于 2026-04-09 的实际测试：
+基于 2026-04-11 的最新联调结果：
 
 1. `LoginService GET /health` 返回 `200`，`configured=true`。
 2. `ChatService GET /health` 返回 `200`，`configured=true`。
 3. `ChatService` 当前要求 JWT 鉴权：`authRequired=true`。
 4. `ChatService GET /api/chat/roles` 返回 4 个有效角色。
 5. `ChatService` 当前数据库和天气能力均已联通：`databaseReachable=true`、`weatherConfigured=true`。
+6. 本地联通验证已确认 `LoginService` 测试账号模式可签发 JWT。
+7. 本地联通验证已确认 `ChatService /api/chat/history`、`/api/chat/clear` 可访问 MySQL。
+8. 本地联通验证已确认在真实 `DASHSCOPE_API_KEY` 下，`ChatService /api/chat/completions` 可返回模型回复。
+9. 线上联通验证已确认 `LoginService /api/auth/send-code`、`/api/auth/login`、`ChatService /api/chat/history`、`/api/chat/clear`、`/api/chat/completions` 全链路可用。
+
+### 1.3 当前已验证可用的 MySQL 业务配置
+
+```text
+MYSQL_HOST=118.25.150.154
+MYSQL_PORT=3306
+MYSQL_USER=AIchat_app_SQL_admin
+MYSQL_PASSWORD=AIchat123456
+MYSQL_DATABASE=aichat-database
+```
 
 ## 2. 鉴权约定
 

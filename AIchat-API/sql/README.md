@@ -41,6 +41,12 @@
 mysql -h <host> -P 3306 -u <user> -p -D "aichat-database" < 001_init_aichat_api_mysql8.sql
 ```
 
+当前已验证可从本机直接执行初始化的业务配置：
+
+```bash
+mysql -h 118.25.150.154 -P 3306 -u AIchat_app_SQL_admin -p -D "aichat-database" < 001_init_aichat_api_mysql8.sql
+```
+
 ## 维护要求
 
 1. 保持 MySQL 8.0 兼容。

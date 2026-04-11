@@ -59,6 +59,15 @@
 4. 即使开启测试账号，`LOGIN_TOKEN_SECRET` 仍然必须正确配置。
 5. 如果修改测试账号机制，要同步更新 `.env.example` 和 `README.md`。
 
+当前本地验证参考值：
+
+1. `ENABLE_TEST_LOGIN_ACCOUNT=true`
+2. `TEST_LOGIN_PHONE_NUMBER=18888888888`
+3. `TEST_LOGIN_VERIFY_CODE=1234`
+4. `TEST_LOGIN_COUNTRY_CODE=86`
+
+这些值仅用于本地联通验证，不应直接当作线上默认配置。
+
 ## 维护要求
 
 后续修改本目录时：

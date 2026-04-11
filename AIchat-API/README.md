@@ -83,6 +83,14 @@ AIchat-API/
 
 1. `aichat-database`
 
+当前已验证可从本机直接联通的业务配置：
+
+1. `MYSQL_HOST=118.25.150.154`
+2. `MYSQL_PORT=3306`
+3. `MYSQL_USER=AIchat_app_SQL_admin`
+4. `MYSQL_PASSWORD=AIchat123456`
+5. `MYSQL_DATABASE=aichat-database`
+
 核心表：
 
 1. `app_users`
@@ -123,6 +131,36 @@ AIchat-API/
 9. 流式聊天
 10. 图片 URL 测试
 11. 本地图片转 `imageDataUrl` 测试
+
+## 本地联通验证
+
+基于 2026-04-11 的本地验证结果：
+
+1. `LoginService` 可通过隐藏测试账号模式签发 JWT。
+2. `ChatService /health` 本地返回 `databaseReachable=true`。
+3. `ChatService /api/chat/roles` 本地返回 4 个角色。
+4. `ChatService /api/chat/history` 与 `POST /api/chat/clear` 本地可正常访问数据库。
+5. `ChatService /api/chat/completions` 在配置真实 `DASHSCOPE_API_KEY` 后，本地已成功返回模型回复。
+
+说明：
+
+1. 本地测试时若带有 `ALL_PROXY` / `HTTP_PROXY` / `HTTPS_PROXY`，可能影响大模型调用。
+2. 若本机存在代理，建议先清理代理环境变量后再做本地链路验证。
+
+## 线上联通验证
+
+基于 2026-04-11 的线上验证结果：
+
+1. `LoginService /api/auth/send-code` 已成功向真实手机号发送验证码。
+2. `LoginService /api/auth/login` 已成功签发线上 JWT。
+3. `ChatService /api/chat/history` 在线上可正常返回。
+4. `ChatService /api/chat/clear` 在线上可正常返回。
+5. `ChatService /api/chat/completions` 在线上已成功返回模型回复。
+
+说明：
+
+1. 当前线上数据库联通问题已经恢复，`ChatService /health` 返回 `databaseReachable=true`。
+2. 当前数据库问题修复后，登录、鉴权、数据库读写与模型调用链路均已跑通。
 
 ## API 文档
 

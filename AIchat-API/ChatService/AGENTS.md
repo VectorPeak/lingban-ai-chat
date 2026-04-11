@@ -66,6 +66,21 @@
 11. `README.md`
 12. `AGENTS.md`
 
+## 当前数据库连接基线
+
+当前已验证可从本机直接联通的业务配置：
+
+1. `MYSQL_HOST=118.25.150.154`
+2. `MYSQL_PORT=3306`
+3. `MYSQL_USER=AIchat_app_SQL_admin`
+4. `MYSQL_PASSWORD=AIchat123456`
+5. `MYSQL_DATABASE=aichat-database`
+
+说明：
+
+1. 当前业务账号是 `AIchat_app_SQL_admin`。
+2. 不要默认切换回 `debian-sys-maint` 之类系统维护账号。
+
 ## 仓储层约定
 
 `repositories.py` 负责：
@@ -91,3 +106,4 @@
 4. 如果修改数据库结构或种子数据，要同步 SQL 目录。
 5. 如果修改接口、配置或部署方式，更新 `README.md`。
 6. 如果修改目录职责或维护规则，更新本文件。
+7. 如果修改数据库连接配置，至少同步 `.env.example`、`README.md` 和根目录联调文档。

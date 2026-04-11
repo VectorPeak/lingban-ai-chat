@@ -79,6 +79,13 @@
 
 1. `aichat-database`
 
+当前已验证可从本机直接联通的业务配置：
+
+1. `MYSQL_HOST=118.25.150.154`
+2. `MYSQL_PORT=3306`
+3. `MYSQL_USER=AIchat_app_SQL_admin`
+4. `MYSQL_PASSWORD=AIchat123456`
+
 核心表：
 
 1. `app_users`
@@ -90,6 +97,7 @@
 
 1. `chat_roles` 以 `roles.py` 为代码基线。
 2. 不在 `roles.py` 中的旧角色会被同步失活为 `is_active = 0`。
+3. 当前已验证可从本机直接联通的 MySQL 配置指向 `118.25.150.154:3306`，数据库名为 `aichat-database`。
 
 ## 关键环境变量
 
@@ -115,6 +123,21 @@
 2. 图片请求会走视觉模型分支。
 3. 普通文本请求默认走文本模型分支。
 4. 天气能力只会在显式传入 `weatherCity`，或用户问题明显涉及天气时触发。
+
+## 本地联通验证
+
+基于 2026-04-11 的本地验证结果：
+
+1. `GET /health` 本地返回 `configured=true`、`databaseConfigured=true`、`databaseReachable=true`。
+2. `GET /api/chat/roles` 本地返回 4 个角色。
+3. `GET /api/chat/history` 本地可正常读取当前活跃会话。
+4. `POST /api/chat/clear` 本地可正常清空当前会话。
+5. `POST /api/chat/completions` 在真实 `DASHSCOPE_API_KEY` 下，本地已成功返回模型回复。
+
+补充说明：
+
+1. 如果本机设置了 `ALL_PROXY` / `HTTP_PROXY` / `HTTPS_PROXY`，可能导致大模型调用走到本地代理。
+2. 如遇到代理相关错误，建议先清理这些环境变量后再测试。
 
 ## 部署
 

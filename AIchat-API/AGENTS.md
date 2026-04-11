@@ -151,6 +151,14 @@
 
 1. `aichat-database`
 
+当前已验证可从本机直接联通的业务配置：
+
+1. `MYSQL_HOST=118.25.150.154`
+2. `MYSQL_PORT=3306`
+3. `MYSQL_USER=AIchat_app_SQL_admin`
+4. `MYSQL_PASSWORD=AIchat123456`
+5. `MYSQL_DATABASE=aichat-database`
+
 当前核心表：
 
 1. `app_users`
@@ -189,6 +197,12 @@
 9. 流式聊天
 10. 图片 URL 测试
 11. 本地选图转 `imageDataUrl` 测试
+
+本地链路验证现状：
+
+1. `LoginService` 隐藏测试账号模式可本地签发 JWT。
+2. `ChatService` 已验证可从本机连接当前 MySQL。
+3. `ChatService /api/chat/completions` 在真实 `DASHSCOPE_API_KEY` 下可本地返回模型回复。
 
 ## 部署约定
 
